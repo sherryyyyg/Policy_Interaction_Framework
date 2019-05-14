@@ -1,0 +1,421 @@
+function doGet() {
+  
+  return HtmlService.createHtmlOutputFromFile('update').setTitle('Update');
+}
+
+
+//search--to check if a client is exist in database
+function searchAll(searchinfo){
+
+  //input searching criteria 
+   var lname = searchinfo.client_lName.toUpperCase();
+   var fname = searchinfo.client_fName.toUpperCase();
+   var fullname = lname+","+fname;
+   var maddress = searchinfo.mailing_address.toUpperCase();
+   var ponumber = searchinfo.policy_Number.toUpperCase();
+   var phnumber = searchinfo.phone_number;
+   var daddress = searchinfo.dwelling_add.toUpperCase();
+  
+   //client information section
+   var client_sheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1S1uzLIZMeKGm6aIkoB6KjylMlTKHcUz9o7l8p8h0JFI/edit').getSheetByName("Client");
+   var client_data = client_sheet.getDataRange().getValues();
+   var client_lastRow = client_sheet.getLastRow();  //take client sheet col C to search
+   var fullName = client_sheet.getRange('C2:C600').getValues();
+   var clientId = client_sheet.getRange('D2:D600').getValues();
+  
+   // policy information section
+   var policy_sheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/14iTWG_7tWV9Ef_zGphJsq5W5JAlv_NGvMyYBIxHkLic/edit').getSheetByName("Policy");
+   var policy_data = policy_sheet.getDataRange().getValues();
+   var policy_lastRow = policy_sheet.getLastRow();
+   var policy_clientId = policy_sheet.getRange('C2:C700').getValues();
+ 
+   //result section
+   var client_result = [];
+   var policy_result = [];
+   var display = [];
+   var final_result=[]; 
+   var flag = 0;
+  
+  if(lname || fname || maddress ||phnumber){ 
+  for (var i=0; i<client_lastRow; i++){
+    if(lname && fname //check by last name and first name    
+       && client_data[i][2]== fullname)
+      {
+           client_result.push(client_sheet.getRange(i+1,4,1,1).getValues());
+           client_result.push(client_sheet.getRange(i+1,3,1,9).getValues()); 
+           flag=1;
+      }   
+    else if(lname //check by last name
+            && client_data[i][0]==lname)
+         {
+           client_result.push(client_sheet.getRange(i+1,4,1,1).getValues());
+           client_result.push(client_sheet.getRange(i+1,3,1,9).getValues()); 
+           flag=1;
+         } 
+    else if(fname //check by first name
+          && client_data[i][1]==fname)
+         {
+           client_result.push(client_sheet.getRange(i+1,4,1,1).getValues());
+           client_result.push(client_sheet.getRange(i+1,3,1,9).getValues());
+           flag=1;
+      } 
+    else if (maddress && client_data[i][7]==maddress)
+         {
+           client_result.push(client_sheet.getRange(i+1,4,1,1).getValues());
+           client_result.push(client_sheet.getRange(i+1,3,1,9).getValues()); 
+           flag=1;
+      } 
+    else if (phnumber && client_data[i][8]==phnumber)
+         {
+           client_result.push(client_sheet.getRange(i+1,4,1,1).getValues());
+           client_result.push(client_sheet.getRange(i+1,3,1,9).getValues()); 
+           flag=1;
+         }}
+    
+  
+    
+    
+    //client_result=[[[name, id, ...]],
+    //               [[name, id, ...]],
+    //               [[name, id, ...]]]
+   
+   for(var e=0; e<client_result.length; e+=2){                                              
+        for(var id=0; id<policy_lastRow; id++){
+          if (client_result[e]==policy_clientId[id][0]){
+            final_result.push("<b>LastName FirstName   ID     Gender	 DOB      DL	      Address	       City      State    PhoneNumber </b>\n");
+            final_result.push("------------------------------------------------------------------------------------------------------------------- \n");
+            final_result.push("");
+            final_result.push(client_result[e+1]+ "\n");
+            final_result.push("<b>  Policy#      Type    Source    EFFDate	   EXPDate   Company  Price	Dwelling	AgentName </b>\n")
+            final_result.push("------------------------------------------------------------------------------------------------------------------- \n")
+            final_result.push("");
+            final_result.push(policy_sheet.getRange(id+2,4,1,14).getValues() + "\n");
+            final_result.push("\n");
+            final_result.push("\n");
+          }
+        } 
+   }}
+  if (flag ==0)
+    {return "No match"}
+
+  
+  if(ponumber || daddress){
+    
+  for(var n=0; n<policy_lastRow; n++){
+       if(ponumber && policy_data[n][3]==ponumber){
+            policy_result.push(policy_sheet.getRange(n+1,3,1,1).getValues().toString());
+            policy_result.push(policy_sheet.getRange(n+1,4,1,14).getValues().toString());
+         flag =1;
+        }
+       else if (daddress && policy_data[n][11]==daddress){
+            policy_result.push(policy_sheet.getRange(n+1,3,1,1).getValues().toString());
+            policy_result.push(policy_sheet.getRange(n+1,4,1,14).getValues().toString());
+         flag=1;
+       } 
+   }
+    for (var m=0; m<policy_result.length; m+=2){
+        for (var cid=0; cid<client_lastRow; cid++){
+          if (policy_result[m]==clientId[cid]){
+            final_result.push("<b>LastName FirstName   ID     Gender	 DOB      DL	      Address	       City      State    PhoneNumber </b>\n");
+            final_result.push("------------------------------------------------------------------------------------------------------------------- \n");
+            final_result.push("");
+            final_result.push(client_sheet.getRange(cid+2,3,1,9).getValues() + "\n");
+            final_result.push("<b>  Policy#      Type    Source    EFFDate	   EXPDate   Company  Price	Dwelling	AgentName </b>\n")
+            final_result.push("------------------------------------------------------------------------------------------------------------------- \n")
+            final_result.push("");
+            final_result.push(policy_result[m+1] + "\n");
+            final_result.push("\n");
+            final_result.push("\n");
+          }
+        }
+    }
+}
+     if (flag ==0)
+    {return "No match"}
+  
+  
+ final_result.unshift(""); 
+ display=final_result.toString().split(",");
+  for (var f=0; f<display.length; f++){
+    var fixLength = 15;
+    var currLength = display[f].length;
+    var char = " ";
+    var space = fixLength-currLength;
+    var padding = 0;
+    if (currLength<=5){
+      while (padding<=(5-currLength)){
+        display[f]+=char;
+        padding+=1;
+      }
+    } else if (currLength>5 && currLength<=10){
+      while(padding<=(10-currLength)){
+        display[f]+=char;
+        padding+=1
+      }
+    } else {
+      while(padding<=(15-currLength)){
+        display[f]+=char;
+        padding+=1
+      }
+    }
+    
+
+  }
+  
+  return display.toString().replace(/,/g," ");
+      
+
+}
+
+  
+  
+function sendPolicyinfo(pdata){
+  var sheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1LlJRprppCt58IFo5-2uwGxgUWqZiVG0XJQ8MfOFp9Jg/edit').getSheetByName('Daily log');
+  var rnumber = sheet.getLastRow()+1;  
+  sheet.appendRow([pdata.client_lName.toUpperCase(), pdata.client_fName.toUpperCase(), pdata.client_gender.toUpperCase(), pdata.client_dob.toUpperCase(), pdata.mailing_address.toUpperCase(), pdata.phone_number.toUpperCase(), pdata.policy_Number.toUpperCase(),pdata.dl.toUpperCase(),pdata.policy_type.toUpperCase(),pdata.business_source.toUpperCase(),pdata.eff_date.toUpperCase(),pdata.exp_date.toUpperCase(),pdata.company.toUpperCase(),pdata.price.toUpperCase(),pdata.dwelling_add.toUpperCase(),pdata.agent_name.toUpperCase()]);
+  sheet.getRange(rnumber, 17).setValue(new Date());
+    return 'Success';
+   }
+  
+  
+
+<!DOCTYPE html>
+<html>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=0.5">
+   <link rel="stylesheet" href="https://www.w3schools.com/w3css/3/w3.css">
+  <head>
+    <base target="_top">
+    <title>Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  </head>
+  
+  
+  <body>
+    <nav class="navbar navbar-expand-lg sticky-top navbar-light" style= "background-color: #e3f2fd;">
+  <a class="navbar-brand" href="#">HD Insurance</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="https://script.google.com/macros/s/AKfycbytxLEzdIELUJvBwAO43_RRJEUpSYQHjCR-QGBkKP0z6ql8KSJK/exec">Search <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://script.google.com/macros/s/AKfycbwoJXSf4uPNkYcn2jE7vGN0irPKEvizwQTXCWEiACm9V8UernI/exec">Add</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://script.google.com/macros/s/AKfycbzerldHS59rzh5_6wsy_1JkXH1pcSafNQLkjWBVZIog4D-muNJC/exec">Update</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Report</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+    
+    
+    <h2>Enter names in the fields, then click "Search":</h2>
+    
+    <form onsubmit="searchAll(event)">
+      <table>
+        <tr>
+          <td align="right">Last Name:</td>
+          <td align="left"><input type="text" name="clientlname"/></td>
+     </tr>
+     <tr>
+          <td align="right">First name:</td>
+          <td align="left"><input type="text" name="clientfname"/></td>
+     </tr>
+     <tr>
+          <td align="right">Mailing address:</td>
+          <td align="left"><input type="text" name="mailingaddress"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Phone number:</td>
+          <td align="left"><input type="text" name="phonumber"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Policy number:</td>
+          <td align="left"><input type="text" name="policynumber"/></td>
+     </tr>
+     <tr>    
+          <td align="right">Dwelling address:</td>
+          <td align="left"><input type="text" name="dwellingaddress"/></td>
+     </tr>
+     <tr>
+          <td align="left"><input type='submit' value='Search'/></td>
+      </tr>
+      </table>
+      
+    </form>
+    
+  <pre style="font-size:1.2vw;" id="result">
+  
+  </pre>  
+  
+  <table id="table">
+  </table>
+  
+  
+    <script>
+
+         
+   function searchAll(c){
+       c.preventDefault();
+       
+       var searchinfo ={
+         client_lName:c.target['clientlname'].value,
+         client_fName:c.target['clientfname'].value,
+         mailing_address:c.target['mailingaddress'].value,
+         policy_Number:c.target['policynumber'].value,
+         phone_number:c.target['phonumber'].value,
+         dwelling_add:c.target['dwellingaddress'].value
+      }
+ 
+    google.script.run
+        .withSuccessHandler(function(response){
+        console.log(response);
+        document.getElementById("result").innerHTML=response;
+        })
+        .searchAll(searchinfo);
+  
+    }
+   
+
+                  
+</script >
+
+
+
+
+  </body>
+  
+  
+<head>
+    <base target="_top">
+  </head>
+  <h2>Enter client ID and then input correct information you want to update</h2>
+  
+  <body>
+  <form onsubmit="sendPolicyinfo(event)">
+      <table>
+        <tr>
+          <td align="right">Last Name:</td>
+          <td align="left"><input type="text" name="clientlname" /></td>
+     </tr>
+     <tr>
+          <td align="right">First name:</td>
+          <td align="left"><input type="text" name="clientfname" /></td>
+     </tr>
+     <tr>
+          <td align="right">Gender:</td>
+          <td align="left"><input type="text" name="gender" /></td>
+     </tr>
+     <tr>
+          <td align="right">DOB:</td> 
+          <td align="left"><input type="text" name="dob" /></td>
+     </tr>
+     <tr>
+          <td align="right">Mailing address:</td>
+          <td align="left"><input type="text" name="mailingaddress" /></td>
+     </tr>
+     <tr> 
+          <td align="right">Phone number:</td>
+          <td align="left"><input type="text" name="phonumber"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Policy number:</td>
+          <td align="left"><input type="text" name="policynumber" required/></td>
+     </tr>
+     <tr> 
+          <td align="right">Policy type:</td>
+          <td align="left"><input type="text" name="policytype"/></td>
+     </tr>
+     <tr>  
+          <td align="right">Business source:</td>
+          <td align="left"><input type="text" name="businesssource" /></td>
+     </tr>
+     <tr> 
+          <td align="right">EFF date:</td>
+          <td align="left"><input type="text" name="effdate"/></td>
+     </tr>
+     <tr>
+          <td align="right">EXP date:</td>
+          <td align="left"><input type="text" name="expdate"/></td>
+     </tr>
+     <tr>
+          <td align="right">Company:</td>
+          <td align="left"><input type="text" name="company"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Price:</td>
+          <td align="left"><input type="text" name="price"/></td>
+     </tr>
+     <tr>
+          <td align="right">DL:</td>
+          <td align="left"><input type="text" name="DL"/></td>
+     </tr>
+     <tr>    
+          <td align="right">Dwelling address:</td>
+          <td align="left"><input type="text" name="dwellingaddress"/></td>
+     </tr>
+     <tr>     
+          <td align="right">Agent name:</td>
+          <td align="left"><input type="text" name="agentname"/></td>
+     </tr>
+     <tr>
+          <td align="left"><input type='submit' name='Add' value='Add' onclick="return confirm('Update complete!')"/></td>
+      </tr>
+      </table>
+      
+    </form>
+    
+    
+    <script>
+    function sendPolicyinfo(e){
+      e.preventDefault();
+      
+      var pdata = {
+        client_lName:e.target['clientlname'].value,
+        client_fName:e.target['clientfname'].value,
+        client_gender:e.target['gender'].value,
+        client_dob:e.target['dob'].value,
+        mailing_address:e.target['mailingaddress'].value,
+        policy_type:e.target['policytype'].value,
+        policy_Number:e.target['policynumber'].value,
+        phone_number:e.target['phonumber'].value,
+        business_source:e.target['businesssource'].value,
+        eff_date:e.target['effdate'].value,
+        exp_date:e.target['expdate'].value,
+        company:e.target['company'].value,
+        price:e.target['price'].value,
+        dl:e.target['DL'].value,
+        dwelling_add:e.target['dwellingaddress'].value,
+        agent_name:e.target['agentname'].value
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(response){
+        console.log(response);
+        })
+        .sendPolicyinfo(pdata);
+    }
+    
+    </script>
+    
+</body>  
+  
+  
+</html>
+
+
+
+
+
+
+
+
+  
+

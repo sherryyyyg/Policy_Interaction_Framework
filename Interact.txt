@@ -1,0 +1,344 @@
+function getScriptUrl() {
+ var url = SitesApp.getActivePage().getUrl();
+  Logger.log(url);
+}
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index').setTitle('Adding Rows');
+  
+  //return HtmlService.createHtmlOutputFromFile('change').setTitle('Search to change');
+  //return HtmlService.createHtmlOutputFromFile('report').setTitle('Reporting');
+}
+
+function doPost(e){
+  Logger.log(e);
+}
+
+//index--append row to sheet 
+function sendPolicyinfo(pdata){
+  var sheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1U2MTIq37eu0DmF4D7qwYo-GNHNFcAYveXml8ZkWaLtY/edit').getActiveSheet();
+  var rnumber = sheet.getLastRow()+1;  
+  if(sheet.getName()=="daily_logs"){
+  sheet.appendRow([pdata.client_lName.toUpperCase(), pdata.client_fName.toUpperCase(), pdata.client_gender.toUpperCase(), pdata.client_dob.toUpperCase(), pdata.mailing_address.toUpperCase(), pdata.phone_number.toUpperCase(), pdata.policy_Number.toUpperCase(),pdata.dl.toUpperCase(),pdata.policy_type.toUpperCase(),pdata.business_source.toUpperCase(),pdata.eff_date.toUpperCase(),pdata.exp_date.toUpperCase(),pdata.company.toUpperCase(),pdata.price.toUpperCase(),pdata.dwelling_add.toUpperCase(),pdata.agent_name.toUpperCase()]);
+  sheet.getRange(rnumber, 17).setValue(new Date());
+    return 'Success';
+   }
+}
+
+
+
+/*
+function appendString() {
+  var range = SpreadsheetApp.getActiveSheet().getActiveRange();
+  var numRows = range.getNumRows();
+  var numCols = range.getNumColumns();
+  for (var i = 1; i <= numRows; i++) {
+    for (var j = 1; j <= numCols; j++) {
+      var currentValue = range.getCell(i,j).getValue();
+      var withString = currentValue + " string";
+      range.getCell(i,j).setValue(withString);
+    }
+  }
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="https://www.w3schools.com/w3css/3/w3.css">
+  <head>
+    <base target="_top">
+  </head>
+  
+  
+  <body>
+  <nav class="w3-bar w3-black">
+  <a href="index" class="w3-button w3-bar-item">Add</a>
+  <a href="search" class="w3-button w3-bar-item">Search</a>
+  <a href="#change" class="w3-button w3-bar-item">Change</a>
+  <a href="#report" class="w3-button w3-bar-item">Report</a>
+    </nav>
+    
+    <h2>Enter information in the fields, then click "Search":</h2>
+    <form onsubmit="searchAll(event)">
+      <table>
+        <tr>
+          <td align="right">Last Name:</td>
+          <td align="left"><input type="text" name="clientlname"/></td>
+     </tr>
+     <tr>
+          <td align="right">First name:</td>
+          <td align="left"><input type="text" name="clientfname"/></td>
+     </tr>
+     <tr>
+          <td align="right">Mailing address:</td>
+          <td align="left"><input type="text" name="mailingaddress"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Policy number:</td>
+          <td align="left"><input type="text" name="policynumber"/></td>
+     </tr>
+     <tr>
+          <td align="left"><input type='submit' value='Search'/></td>
+      </tr>
+      </table>
+      
+      </form>
+      
+      
+      <script>
+     function searchAll(s){
+       s.preventDefault();
+      
+       var searchinfo ={
+         client_lName:s.target['clientlname'].value,
+         client_fName:s.target['clientfname'].value,
+         mailing_address:s.target['mailingaddress'].value,
+         policy_Number:s.target['policynumber'].value,
+         phone_number:s.target['phonumber'].value,
+       
+      }
+      google.script.run
+        .withSuccessHandler(function(response){
+        console.log(response);
+        })
+        .searchAll(searchinfo);
+    }
+    </script>
+    
+    
+    <script>
+    function changeRequest(){
+}
+    </script>
+    
+    
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/3/w3.css">
+  
+  <head>
+    <base target="_top">
+  </head>
+  
+  <body>
+  <nav class="w3-bar w3-black">
+  <a href="index" class="w3-button w3-bar-item">Add</a>
+  <a href="search" class="w3-button w3-bar-item">Search</a>
+  <a href="#change" class="w3-button w3-bar-item">Change</a>
+  <a href="#report" class="w3-button w3-bar-item">Report</a>
+  </nav>
+  
+    <h2>Enter names in the fields, then click "Add" to submit the form:</h2>
+    <pre> Please fill in following information only for:
+          new policy
+          rewrite policy
+          renew policy
+    </pre>      
+    
+    <form onsubmit="sendPolicyinfo(event)">
+      <table>
+        <tr>
+          <td align="right">Last Name:</td>
+          <td align="left"><input type="text" name="clientlname" required/></td>
+     </tr>
+     <tr>
+          <td align="right">First name:</td>
+          <td align="left"><input type="text" name="clientfname" required/></td>
+     </tr>
+     <tr>
+          <td align="right">Gender:</td>
+          <td align="left"><input type="text" name="gender" required/></td>
+     </tr>
+     <tr>
+          <td align="right">DOB:</td> 
+          <td align="left"><input type="text" name="dob" required/></td>
+     </tr>
+     <tr>
+          <td align="right">Mailing address:</td>
+          <td align="left"><input type="text" name="mailingaddress" required/></td>
+     </tr>
+     <tr> 
+          <td align="right">Phone number:</td>
+          <td align="left"><input type="text" name="phonumber"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Policy number:</td>
+          <td align="left"><input type="text" name="policynumber" required/></td>
+     </tr>
+     <tr> 
+          <td align="right">Policy type:</td>
+          <td align="left"><input type="text" name="policytype"/></td>
+     </tr>
+     <tr>  
+          <td align="right">Business source:</td>
+          <td align="left"><input type="text" name="businesssource" required/></td>
+     </tr>
+     <tr> 
+          <td align="right">EFF date:</td>
+          <td align="left"><input type="text" name="effdate"/></td>
+     </tr>
+     <tr>
+          <td align="right">EXP date:</td>
+          <td align="left"><input type="text" name="expdate"/></td>
+     </tr>
+     <tr>
+          <td align="right">Company:</td>
+          <td align="left"><input type="text" name="company"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Price:</td>
+          <td align="left"><input type="text" name="price"/></td>
+     </tr>
+     <tr>
+          <td align="right">DL:</td>
+          <td align="left"><input type="text" name="DL"/></td>
+     </tr>
+     <tr>    
+          <td align="right">Dwelling address:</td>
+          <td align="left"><input type="text" name="dwellingaddress"/></td>
+     </tr>
+     <tr>     
+          <td align="right">Agent name:</td>
+          <td align="left"><input type="text" name="agentname"/></td>
+     </tr>
+     <tr>
+          <td align="left"><input type='submit' name='Add' value='Add' onclick="return confirm('Need to add this entry?')"/></td>
+      </tr>
+      </table>
+      
+    </form>
+
+    
+    
+    
+    <script>
+    //to send information to daily log
+    function sendPolicyinfo(e){
+      e.preventDefault();
+      
+      var pdata = {
+        client_lName:e.target['clientlname'].value,
+        client_fName:e.target['clientfname'].value,
+        client_gender:e.target['gender'].value,
+        client_dob:e.target['dob'].value,
+        mailing_address:e.target['mailingaddress'].value,
+        policy_type:e.target['policytype'].value,
+        policy_Number:e.target['policynumber'].value,
+        phone_number:e.target['phonumber'].value,
+        business_source:e.target['businesssource'].value,
+        eff_date:e.target['effdate'].value,
+        exp_date:e.target['expdate'].value,
+        company:e.target['company'].value,
+        price:e.target['price'].value,
+        dl:e.target['DL'].value,
+        dwelling_add:e.target['dwellingaddress'].value,
+        agent_name:e.target['agentname'].value
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(response){
+        console.log(response);
+        })
+        .sendPolicyinfo(pdata);
+    }
+    
+    </script>
+  
+   
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="https://www.w3schools.com/w3css/3/w3.css">
+  <head>
+    <base target="_top">
+  </head>
+  
+  
+  <body>
+  <nav class="w3-bar w3-black">
+  <a href="index" class="w3-button w3-bar-item">Add</a>
+  <a href="search" class="w3-button w3-bar-item">Search</a>
+  <a href="#change" class="w3-button w3-bar-item">Change</a>
+  <a href="#report" class="w3-button w3-bar-item">Report</a>
+    </nav>
+    
+  <h2>Select information in the fields, then click "Report":</h2>
+  
+  </body>
+</html>
+
+
+

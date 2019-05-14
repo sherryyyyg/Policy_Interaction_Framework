@@ -1,0 +1,181 @@
+function getScriptUrl() {
+ var url = SitesApp.getActivePage().getUrl();
+  Logger.log(url);
+}
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index').setTitle('Adding Rows');
+}
+
+function doPost(e){
+  Logger.log(e);
+}
+
+function sendPolicyinfo(pdata){
+  var sheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1U2MTIq37eu0DmF4D7qwYo-GNHNFcAYveXml8ZkWaLtY/edit').getActiveSheet();
+  var rnumber = sheet.getLastRow()+1;  
+  if(sheet.getName()=="daily_logs"){
+  sheet.appendRow([pdata.client_lName.toUpperCase(), pdata.client_fName.toUpperCase(), pdata.client_gender.toUpperCase(), pdata.client_dob.toUpperCase(), pdata.mailing_address.toUpperCase(), pdata.phone_number.toUpperCase(), pdata.policy_Number.toUpperCase(),pdata.dl.toUpperCase(),pdata.policy_type.toUpperCase(),pdata.business_source.toUpperCase(),pdata.eff_date.toUpperCase(),pdata.exp_date.toUpperCase(),pdata.company.toUpperCase(),pdata.price.toUpperCase(),pdata.dwelling_add.toUpperCase(),pdata.agent_name.toUpperCase()]);
+  sheet.getRange(rnumber, 17).setValue(new Date());
+    return 'Success';
+   }
+}
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+
+  
+  <head>
+    <title>Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  </head>
+  
+  <body>
+  <nav class="navbar navbar-expand-lg sticky-top navbar-light" style= "background-color: #e3f2fd;">
+  <a class="navbar-brand" href="#">HD Insurance</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="https://script.google.com/macros/s/AKfycbytxLEzdIELUJvBwAO43_RRJEUpSYQHjCR-QGBkKP0z6ql8KSJK/exec">Search <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://script.google.com/macros/s/AKfycbwoJXSf4uPNkYcn2jE7vGN0irPKEvizwQTXCWEiACm9V8UernI/exec">Add</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://script.google.com/macros/s/AKfycbzORJUIxzZjokVVSHucVPRDdeCMkTzal36HMjX_TjgT/dev">Update</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Report</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+  
+    <h2>Enter names in the fields, then click "Add" to submit the form:</h2>
+    <pre> Please fill in following information only for:
+          new policy
+          rewrite policy
+          renew policy
+    </pre>      
+    
+    <form onsubmit="sendPolicyinfo(event)">
+      <table>
+        <tr>
+          <td align="right">Last Name:</td>
+          <td align="left"><input type="text" name="clientlname" required/></td>
+     </tr>
+     <tr>
+          <td align="right">First name:</td>
+          <td align="left"><input type="text" name="clientfname" required/></td>
+     </tr>
+     <tr>
+          <td align="right">Gender:</td>
+          <td align="left"><input type="text" name="gender" required/></td>
+     </tr>
+     <tr>
+          <td align="right">DOB:</td> 
+          <td align="left"><input type="text" name="dob" required/></td>
+     </tr>
+     <tr>
+          <td align="right">Mailing address:</td>
+          <td align="left"><input type="text" name="mailingaddress" required/></td>
+     </tr>
+     <tr> 
+          <td align="right">Phone number:</td>
+          <td align="left"><input type="text" name="phonumber"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Policy number:</td>
+          <td align="left"><input type="text" name="policynumber" required/></td>
+     </tr>
+     <tr> 
+          <td align="right">Policy type:</td>
+          <td align="left"><input type="text" name="policytype"/></td>
+     </tr>
+     <tr>  
+          <td align="right">Business source:</td>
+          <td align="left"><input type="text" name="businesssource" required/></td>
+     </tr>
+     <tr> 
+          <td align="right">EFF date:</td>
+          <td align="left"><input type="text" name="effdate"/></td>
+     </tr>
+     <tr>
+          <td align="right">EXP date:</td>
+          <td align="left"><input type="text" name="expdate"/></td>
+     </tr>
+     <tr>
+          <td align="right">Company:</td>
+          <td align="left"><input type="text" name="company"/></td>
+     </tr>
+     <tr> 
+          <td align="right">Price:</td>
+          <td align="left"><input type="text" name="price"/></td>
+     </tr>
+     <tr>
+          <td align="right">DL:</td>
+          <td align="left"><input type="text" name="DL"/></td>
+     </tr>
+     <tr>    
+          <td align="right">Dwelling address:</td>
+          <td align="left"><input type="text" name="dwellingaddress"/></td>
+     </tr>
+     <tr>     
+          <td align="right">Agent name:</td>
+          <td align="left"><input type="text" name="agentname"/></td>
+     </tr>
+     <tr>
+          <td align="left"><input type='submit' name='Add' value='Add' onclick="return confirm('Need to add this entry?')"/></td>
+      </tr>
+      </table>
+      
+    </form>
+
+    
+    
+    
+    <script>
+    //to send information to daily log
+    function sendPolicyinfo(e){
+      e.preventDefault();
+      
+      var pdata = {
+        client_lName:e.target['clientlname'].value,
+        client_fName:e.target['clientfname'].value,
+        client_gender:e.target['gender'].value,
+        client_dob:e.target['dob'].value,
+        mailing_address:e.target['mailingaddress'].value,
+        policy_type:e.target['policytype'].value,
+        policy_Number:e.target['policynumber'].value,
+        phone_number:e.target['phonumber'].value,
+        business_source:e.target['businesssource'].value,
+        eff_date:e.target['effdate'].value,
+        exp_date:e.target['expdate'].value,
+        company:e.target['company'].value,
+        price:e.target['price'].value,
+        dl:e.target['DL'].value,
+        dwelling_add:e.target['dwellingaddress'].value,
+        agent_name:e.target['agentname'].value
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(response){
+        console.log(response);
+        })
+        .sendPolicyinfo(pdata);
+    }
+    
+    </script>
+  
+   
+  </body>
+</html>
+
+
